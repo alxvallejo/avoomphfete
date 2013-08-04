@@ -1,0 +1,68 @@
+.oomph-edit-image-container {
+	display: inline-block;
+	overflow: hidden;
+	position: relative;
+}
+#TB_ajaxContent {
+	position: relative;
+}
+.oomph-edit-image-link {
+	-webkit-border-top-left-radius: 10px;
+	-moz-border-radius-topleft: 10px;
+	border-top-left-radius: 10px;
+	background: rgb(0, 0, 0); /* The Fallback */
+	background: rgba(0, 0, 0, 0.65);
+	color: #fff;
+	height: 40px;
+	line-height: 40px;
+	position: absolute;
+	right: 0;
+	text-align: center;
+	text-decoration: none;
+	width: 100px;
+}
+.oomph-edit-image-link:hover {
+	color: #fff;
+	text-decoration: underline;
+}
+
+#leftcol {
+	float:left;
+	width:70%;
+}
+
+#rightcol {
+	float:left;
+	width:30%;
+}
+
+#jcrop_target {
+	float:left;
+	max-width:300px;
+	position: absolute;
+	bottom: 100px;
+	right: 100px;
+}
+
+#preview-pane {
+	display: block;
+	position: absolute;
+	z-index: 2000;
+	bottom: 20px;
+	right: -400px;
+	padding: 6px;
+	border: 1px rgba(0,0,0,.4) solid;
+	background-color: white;
+
+	-webkit-border-radius: 6px;
+	-moz-border-radius: 6px;
+	border-radius: 6px;
+	-webkit-box-shadow: 1px 1px 5px 2px rgba(0, 0, 0, 0.2);
+	-moz-box-shadow: 1px 1px 5px 2px rgba(0, 0, 0, 0.2);
+	box-shadow: 1px 1px 5px 2px rgba(0, 0, 0, 0.2);
+}
+
+#preview-pane .preview-container {
+	overflow:hidden;
+	margin-left:5px;
+}
