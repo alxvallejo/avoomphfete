@@ -39,17 +39,17 @@
 #jcrop_target {
 	float:left;
 	max-width:300px;
-	position: absolute;
 	bottom: 100px;
 	right: 100px;
 }
 
+#jcrop_target .jcrop-holder {
+	float:left;
+}
+
 #preview-pane {
 	display: block;
-	position: absolute;
 	z-index: 2000;
-	bottom: 20px;
-	right: -400px;
 	padding: 6px;
 	border: 1px rgba(0,0,0,.4) solid;
 	background-color: white;

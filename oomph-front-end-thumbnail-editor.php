@@ -165,13 +165,12 @@ class Oomph_Front_End_Thumbnail_Editor {
 					Dimensions: <div class="dims"></div>
 
 					<!-- This is the form that our event handler fills -->
-			        <button id="save_img">Save Thumbnail</button>
+			        <button id="save_img">Save Thumbnail</button>					
+				</div>
+			</div>
+			<div id="preview-pane">
+				<div class="preview-container">
 
-					<div id="preview-pane">
-						<div class="preview-container">
-
-						</div>
-					</div>
 				</div>
 			</div>
 		</div>

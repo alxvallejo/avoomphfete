@@ -7,6 +7,8 @@ jQuery(document).ready(function($){
 
     var target_filename;
     var orig_img_url;
+    var width;
+    var height;
 
 	width = imgContainer.length > 0 ? imgContainer.width() : 0;
 	height = imgContainer.length > 0 ? imgContainer.height() : 0;
@@ -44,7 +46,7 @@ jQuery(document).ready(function($){
     		var tb_ajaxcontent = $('#TB_ajaxContent');
     		var leftcol = $('#TB_ajaxContent #leftcol');
     		var jcrop_target = $('#TB_ajaxContent #jcrop_target');
-    		var preview_window = $('#preview-pane .preview-container');
+    		var preview_container = $('#preview-pane .preview-container');
 
     		var parse = jQuery.parseJSON(response);
     		fimg = parse['thumbnail'];
@@ -60,11 +62,16 @@ jQuery(document).ready(function($){
             
     		//original_thumb_url =
             $(jcrop_target).empty();
-            $(preview_window).empty();
+            $(preview_container).empty();
     		$(jcrop_target).html(fimg);
     		$('img', jcrop_target).attr('id', 'target');
-    		$(preview_window).html(fimg);
-    		var preview_img = $('img', preview_window);
+    		$(preview_container).html(fimg);
+
+            var target_height = $(fimg).height();
+            console.log( 'TARGET HEIGHT ' + target_height );
+            $(preview_container).css('bottom',target_height+20);
+
+    		var preview_img = $('img', preview_container);
     		$(preview_img).attr('class', 'jcrop_preview');
 
     		var target = $('#TB_ajaxContent #jcrop_target img');
