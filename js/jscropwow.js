@@ -71,9 +71,8 @@ jQuery(document).ready(function($){
 
             console.log(fimg);
 
-            var tb_window = $('#TB_window');
-            var tb_content = $('#TB_ajaxContent');
-
+            tb_window = $('#TB_window');
+            tb_content = $('#TB_ajaxContent');
 
             $(tb_content).html( parse['output_buffer'] );
 
@@ -89,8 +88,8 @@ jQuery(document).ready(function($){
             $('#TB_ajaxContent').animate({
                 height: tb_height,
                 width: tb_width
-            }, {
-                duration: 400
+            }, 400, function() {
+                tb_content = $('#TB_ajaxContent');
             });
 
     		$('.loading').hide();
@@ -108,10 +107,9 @@ jQuery(document).ready(function($){
             var tb_window_width = $(tb_window).width();
 
             var tb_window_offset = $('#TB_window').offset();
-            //var tb_window_right = 
             var rightcol_offset = $(rightcol).offset();
-            //console.log('OFFSET' + rightcol_offset);
             var preview_space = $(tb_content).width() - ( rightcol_offset.left + $(rightcol).width() );
+            console.log('preview_space  ' + preview_space);
             console.log('$(tb_content).width()  ' + $(tb_content).width());
             console.log('tb_window_offset.left  ' + tb_window_offset.left);
             console.log('rightcol_offset.left  ' + rightcol_offset.left);
@@ -123,9 +121,6 @@ jQuery(document).ready(function($){
             } else {
                 console.log('OK THEN ' + (preview_space - thumbnail_width) - thumbnail_width);
             }
-
-    		console.log(preview_space);
-    		
             
     		//original_thumb_url =
             $(jcrop_target).empty();
