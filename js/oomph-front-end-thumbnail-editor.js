@@ -1,5 +1,11 @@
 jQuery(document).ready(function($) {
 
+	// TB Window sizes
+    var tb_width = $(window).width() * 0.9;
+    var tb_height = $(window).height() * 0.9;
+    console.log('TB width ' + tb_width);
+    console.log('TB Height ' + tb_height); 
+
 	$('.oomph-edit-image').each(function() {
 		var $image = $(this);
 		var $image_width = $(this).attr('width');
@@ -11,7 +17,7 @@ jQuery(document).ready(function($) {
 
 
 		$(this).wrap('<div class="oomph-edit-image-container"></div>');
-		$(this).after('<a class="oomph-edit-image-link thickbox" href="#TB_inline?width=1100&height=850&inlineId=jscropwow_tb">Edit Image</a>');
+		$(this).after('<a class="oomph-edit-image-link thickbox" href="#TB_inline?width=500&height=500&inlineId=jscropwow_tb">Edit Image</a>');
 
 
 		$image_container = $(this).parent();

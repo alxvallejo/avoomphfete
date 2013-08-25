@@ -5,6 +5,18 @@ jQuery(document).ready(function($){
     var $image_link = imgContainer.find('.oomph-edit-image-link');
     image_container = $(img).closest('.oomph-edit-image-container');
 
+    // TB Window sizes
+    var tb_width = $(window).width() * 0.9;
+    var tb_height = $(window).height() * 0.9;
+
+    // Resize?
+    /*$(window).resize(function(){
+        var W = $(window).width();
+        var H = $(window).height();
+    });*/
+
+    var thumbnail_width = image_container.width(); // Used to compare with document width and compare with preview thumbnail
+
     var target_filename;
     var orig_img_url;
     var width;
@@ -23,6 +35,8 @@ jQuery(document).ready(function($){
 	save_button = $('#save_img');
 
     $image_link.on('click', function(){
+        
+
         thisImg = $(this).closest('.oomph-edit-image-container').find('img');
         articleId = $(this).closest('article').attr('id').match(/[\d]+$/);
         console.log('image link clicked');
@@ -41,24 +55,77 @@ jQuery(document).ready(function($){
     		data: first_phase,
     		datatype: "json"
     	}).done(function(response){
-            console.log(response);
+
+            var parse = jQuery.parseJSON(response);
+            // Parse response request and assign variables
+            var fimg = parse['thumbnail'];
+            var full_src = parse['full_src'];
+            var thumbnail_id = parse['thumbnail_id'];
+            var thumbnail_post_title = parse['name'];
+            var orig_w = parse['orig_w'];
+            var orig_h = parse['orig_h'];
+            var target_filename = parse['target_filename'];
+            var orig_img_url = parse['full_src'];
+            console.log( 'target path is ' + target_filename );
+            var nonce = parse['nonce'];
+
+            console.log(fimg);
+
+            var tb_window = $('#TB_window');
+            var tb_content = $('#TB_ajaxContent');
+
+
+            $(tb_content).html( parse['output_buffer'] );
+
+            $(tb_window).animate({
+                marginLeft: 0 - (tb_width + 50) / 2,
+                marginTop: 0 - (tb_height + 30) / 2,
+                height: tb_height + 30,
+                width: tb_width + 30
+            }, 400, function() {
+                console.log( 'ANIMATE OFFSET ' + $(this).offset().left );
+            });
+
+            $('#TB_ajaxContent').animate({
+                height: tb_height,
+                width: tb_width
+            }, {
+                duration: 400
+            });
+
     		$('.loading').hide();
-    		var tb_ajaxcontent = $('#TB_ajaxContent');
+    		
     		var leftcol = $('#TB_ajaxContent #leftcol');
+            var rightcol = $('#TB_ajaxContent #rightcol');
     		var jcrop_target = $('#TB_ajaxContent #jcrop_target');
     		var preview_container = $('#preview-pane .preview-container');
+            var preview_pane = $('#preview-pane'); // parent div for preview container
 
-    		var parse = jQuery.parseJSON(response);
-    		fimg = parse['thumbnail'];
-    		full_src = parse['full_src'];
-    		thumbnail_id = parse['thumbnail_id'];
-    		thumbnail_post_title = parse['name'];
-    		orig_w = parse['orig_w'];
-    		orig_h = parse['orig_h'];
-            target_filename = parse['target_filename'];
-            orig_img_url = parse['full_src'];
-            console.log( 'target path is ' + target_filename );
-            nonce = parse['nonce'];
+            // Regroup dimensions ******************
+
+            // 
+            var tb_window_height = $(tb_window).height();
+            var tb_window_width = $(tb_window).width();
+
+            var tb_window_offset = $('#TB_window').offset();
+            //var tb_window_right = 
+            var rightcol_offset = $(rightcol).offset();
+            //console.log('OFFSET' + rightcol_offset);
+            var preview_space = $(tb_content).width() - ( rightcol_offset.left + $(rightcol).width() );
+            console.log('$(tb_content).width()  ' + $(tb_content).width());
+            console.log('tb_window_offset.left  ' + tb_window_offset.left);
+            console.log('rightcol_offset.left  ' + rightcol_offset.left);
+            console.log('rightcol_offset.left + $(rightcol).width().left  ' + rightcol_offset.left + $(rightcol).width());
+
+            if( ((preview_space - thumbnail_width) - thumbnail_width) > 20 ) { // Choose proper right margin for preview window
+                console.log('yesss');
+                $(preview_pane).css({'top':0,'left':'20px'});
+            } else {
+                console.log('OK THEN ' + (preview_space - thumbnail_width) - thumbnail_width);
+            }
+
+    		console.log(preview_space);
+    		
             
     		//original_thumb_url =
             $(jcrop_target).empty();
@@ -67,18 +134,20 @@ jQuery(document).ready(function($){
     		$('img', jcrop_target).attr('id', 'target');
     		$(preview_container).html(fimg);
 
-            var target_height = $(fimg).height();
-            console.log( 'TARGET HEIGHT ' + target_height );
-            $(preview_container).css('bottom',target_height+20);
-
     		var preview_img = $('img', preview_container);
     		$(preview_img).attr('class', 'jcrop_preview');
 
     		var target = $('#TB_ajaxContent #jcrop_target img');
 
     		// logic for initial crop area is determined by preview container
-    		$('#preview-pane .preview-container').width(width);
-    		$('#preview-pane .preview-container').height(height);
+    		$(preview_container).width(width);
+    		$(preview_container).height(height);
+
+            // Set the absolute positioning of the preview pane
+            // JCrop uses absolute positioning natively.
+            var target_height = $(preview_container).height();
+            console.log( 'TARGET HEIGHT ' + target_height );
+            $(preview_pane).css({'position': 'absolute', 'top':target_height+20});
 
     		var jcrop_api,
     			boundx,
@@ -86,11 +155,10 @@ jQuery(document).ready(function($){
 
     			// Grab some preview information from the preview pane
     			$preview = $('#preview-pane'),
-    			$pcnt = $('#preview-pane .preview-container'),
     			$pimg = $('#preview-pane .preview-container img'),
 
-    			xsize = $pcnt.width(),
-    			ysize = $pcnt.height();
+    			xsize = $(preview_container).width(),
+    			ysize = $(preview_container).height();
 
     		console.log('init', [xsize, ysize]);
 

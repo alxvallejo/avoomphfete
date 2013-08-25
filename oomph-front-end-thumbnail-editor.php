@@ -50,21 +50,22 @@ class Oomph_Front_End_Thumbnail_Editor {
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'action_wp_enqueue_scripts' ) );
 		add_filter( 'post_thumbnail_html', array( $this, 'filter_post_thumbnail_html' ), 10, 5 );
-		add_filter( 'home_template', array( $this, 'jscropwow_tb' ), 10, 2 );
+		//add_filter( 'home_template', array( $this, 'jscropwow_tb' ), 10, 2 );
 		add_action( 'wp_ajax_jscropwow_save_img', array( $this, 'jscropwow_save_img' ) );
 		add_action( 'wp_ajax_jscropwow_find_img', array( $this, 'jscropwow_find_img' ) );
 	}
 
 	function action_wp_enqueue_scripts() {
 		wp_register_style( 'oomph-front-end-thumbnail-editor', plugins_url( 'css/oomph-front-end-thumbnail-editor.css', __FILE__ ), array(), 1.0 );
+		wp_register_script( 'jscropwow', plugins_url( 'js/jscropwow.js', __FILE__ ), array( 'jquery', 'thickbox' ), 1.0 );
+
 		wp_enqueue_style( 'oomph-front-end-thumbnail-editor' );
 		wp_enqueue_script( 'oomph-front-end-thumbnail-editor', plugins_url( 'js/oomph-front-end-thumbnail-editor.js', __FILE__ ), array( 'jquery' ), 1.0 );
 		wp_enqueue_script( 'thickbox' );
 		wp_enqueue_style( 'thickbox' );
 		wp_enqueue_script( 'jcrop' );
 		wp_enqueue_style( 'jcrop' );
-
-		wp_register_script( 'jscropwow', plugins_url( 'js/jscropwow.js', __FILE__ ), array( 'jquery', 'thickbox' ), 1.0 );
+		
 		wp_enqueue_script( 'jscropwow' );
 		wp_localize_script( 'jscropwow', 'jscropwow_vars', array( 'ajaxurl' => home_url( 'wp-admin/admin-ajax.php' ), 'nonce' => wp_create_nonce( 'jscropwow_nonce' ) ) );
 	}
@@ -132,6 +133,7 @@ class Oomph_Front_End_Thumbnail_Editor {
 		}
 		$thumb_title = $thumb_obj->post_title;
 		$nonce = wp_create_nonce("image_editor-" . $post_thumbnail_id);
+		$output_buffer = $this->jscropwow_tb();
 
 		$response = array(
 			'thumbnail' => $large_post_thumbnail,
@@ -142,16 +144,18 @@ class Oomph_Front_End_Thumbnail_Editor {
 			'orig_w' => $full_post_thumbnail_src[1],
 			'orig_h' => $full_post_thumbnail_src[2],
 			'target_filename' => $target_filename,
-			'nonce' => $nonce
+			'nonce' => $nonce,
+			'output_buffer' => $output_buffer
 		);
 		echo json_encode($response);
 		die();
 	}
 
 
-	function jscropwow_tb( $image_id ) {
+	function jscropwow_tb() {
+		ob_start(); // Return the output buffer in the first ajax response
 		?>
-		<div id="jscropwow_tb" style="display:none;">
+		<div id="jscropwow_tb">
 			<h2>Edit Thumbnail Image Crop</h2>
 			<div class='loading'>
 				<img src="<?php echo includes_url( 'images/wpspin-2x.gif' ); ?>" />
@@ -165,16 +169,19 @@ class Oomph_Front_End_Thumbnail_Editor {
 					Dimensions: <div class="dims"></div>
 
 					<!-- This is the form that our event handler fills -->
-			        <button id="save_img">Save Thumbnail</button>					
-				</div>
-			</div>
-			<div id="preview-pane">
-				<div class="preview-container">
+			        <button id="save_img">Save Thumbnail</button>	
 
+			        <div id="preview-pane">
+						<div class="preview-container">
+
+						</div>
+					</div>				
 				</div>
 			</div>
+			
 		</div>
 		<?php
+		return ob_get_clean();
 	}
 
 	function jscropwow_save_img() {

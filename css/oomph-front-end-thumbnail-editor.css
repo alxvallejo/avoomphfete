@@ -3,8 +3,11 @@
 	overflow: hidden;
 	position: relative;
 }
-#TB_ajaxContent {
+#TB_ajaxcontent {
 	position: relative;
+}
+#jcrop-holder {
+	float:left;
 }
 .oomph-edit-image-link {
 	-webkit-border-top-left-radius: 10px;
@@ -50,7 +53,6 @@
 #preview-pane {
 	display: block;
 	z-index: 2000;
-	padding: 6px;
 	border: 1px rgba(0,0,0,.4) solid;
 	background-color: white;
 
@@ -64,5 +66,4 @@
 
 #preview-pane .preview-container {
 	overflow:hidden;
-	margin-left:5px;
 }
