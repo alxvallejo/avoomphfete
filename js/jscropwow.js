@@ -74,7 +74,16 @@ jQuery(document).ready(function($){
             tb_window = $('#TB_window');
             tb_content = $('#TB_ajaxContent');
 
+            // Output buffer of thickbox contents
             $(tb_content).html( parse['output_buffer'] );
+
+            leftcol = $('#TB_ajaxContent #leftcol');
+            rightcol = $('#TB_ajaxContent #rightcol');
+            jcrop_target = $('#TB_ajaxContent #jcrop_target');
+            preview_container = $('#preview-pane .preview-container');
+            preview_pane = $('#preview-pane'); // parent div for preview container
+
+            target = $('#TB_ajaxContent #jcrop_target img');
 
             $(tb_window).animate({
                 marginLeft: 0 - (tb_width + 50) / 2,
@@ -82,6 +91,7 @@ jQuery(document).ready(function($){
                 height: tb_height + 30,
                 width: tb_width + 30
             }, 400, function() {
+                tb_window = $('#TB_window');
                 console.log( 'ANIMATE OFFSET ' + $(this).offset().left );
             });
 
@@ -90,92 +100,91 @@ jQuery(document).ready(function($){
                 width: tb_width
             }, 400, function() {
                 tb_content = $('#TB_ajaxContent');
+                do_everything();
             });
 
     		$('.loading').hide();
     		
-    		var leftcol = $('#TB_ajaxContent #leftcol');
-            var rightcol = $('#TB_ajaxContent #rightcol');
-    		var jcrop_target = $('#TB_ajaxContent #jcrop_target');
-    		var preview_container = $('#preview-pane .preview-container');
-            var preview_pane = $('#preview-pane'); // parent div for preview container
+    		function do_everything() {
+                
 
-            // Regroup dimensions ******************
+                // Regroup dimensions ******************
 
-            // 
-            var tb_window_height = $(tb_window).height();
-            var tb_window_width = $(tb_window).width();
+                // 
+                var tb_window_height = $(tb_window).height();
+                var tb_window_width = $(tb_window).width();
 
-            var tb_window_offset = $('#TB_window').offset();
-            var rightcol_offset = $(rightcol).offset();
-            var preview_space = $(tb_content).width() - ( rightcol_offset.left + $(rightcol).width() );
-            console.log('preview_space  ' + preview_space);
-            console.log('$(tb_content).width()  ' + $(tb_content).width());
-            console.log('tb_window_offset.left  ' + tb_window_offset.left);
-            console.log('rightcol_offset.left  ' + rightcol_offset.left);
-            console.log('rightcol_offset.left + $(rightcol).width().left  ' + rightcol_offset.left + $(rightcol).width());
+                var tb_window_offset = $('#TB_window').offset();
+                var rightcol_offset = $(rightcol).offset();
+                var preview_space = $(tb_content).width() - ( rightcol_offset.left + $(rightcol).width() );
+                console.log('preview_space  ' + preview_space);
+                console.log('$(tb_content).width()  ' + $(tb_content).width());
+                console.log('tb_window_offset.left  ' + tb_window_offset.left);
+                console.log('rightcol_offset.left  ' + rightcol_offset.left);
+                console.log('rightcol_offset.left + $(rightcol).width().left  ' + rightcol_offset.left + $(rightcol).width());
 
-            if( ((preview_space - thumbnail_width) - thumbnail_width) > 20 ) { // Choose proper right margin for preview window
-                console.log('yesss');
-                $(preview_pane).css({'top':0,'left':'20px'});
-            } else {
-                console.log('OK THEN ' + (preview_space - thumbnail_width) - thumbnail_width);
+                if( ((preview_space - thumbnail_width) - thumbnail_width) > 20 ) { // Choose proper right margin for preview window
+                    console.log('yesss');
+                    $(preview_pane).css({'top':0,'left':'20px'});
+                } else {
+                    console.log('OK THEN ' + (preview_space - thumbnail_width) - thumbnail_width);
+                }
+                
+                //original_thumb_url =
+                $(jcrop_target).empty();
+                $(preview_container).empty();
+                $(jcrop_target).html(fimg);
+                $('img', jcrop_target).attr('id', 'target');
+                $(preview_container).html(fimg);
+
+                var preview_img = $('img', preview_container);
+                $(preview_img).attr('class', 'jcrop_preview');
+
+                
+
+                // logic for initial crop area is determined by preview container
+                $(preview_container).width(width);
+                $(preview_container).height(height);
+
+                // Set the absolute positioning of the preview pane
+                // JCrop uses absolute positioning natively.
+                var target_height = $(preview_container).height();
+                console.log( 'TARGET HEIGHT ' + target_height );
+                $(preview_pane).css({'position': 'absolute', 'top':target_height+20+'px'});                
             }
-            
-    		//original_thumb_url =
-            $(jcrop_target).empty();
-            $(preview_container).empty();
-    		$(jcrop_target).html(fimg);
-    		$('img', jcrop_target).attr('id', 'target');
-    		$(preview_container).html(fimg);
 
-    		var preview_img = $('img', preview_container);
-    		$(preview_img).attr('class', 'jcrop_preview');
+            var jcrop_api,
+                boundx,
+                boundy;
 
-    		var target = $('#TB_ajaxContent #jcrop_target img');
+            // Grab some preview information from the preview pane
+            //preview = $('#preview-pane');
+            pimg = $('#preview-pane .preview-container img');
 
-    		// logic for initial crop area is determined by preview container
-    		$(preview_container).width(width);
-    		$(preview_container).height(height);
+            xsize = $(preview_container).width();
+            ysize = $(preview_container).height();
 
-            // Set the absolute positioning of the preview pane
-            // JCrop uses absolute positioning natively.
-            var target_height = $(preview_container).height();
-            console.log( 'TARGET HEIGHT ' + target_height );
-            $(preview_pane).css({'position': 'absolute', 'top':target_height+20});
+            console.log('init', [xsize, ysize]);
 
-    		var jcrop_api,
-    			boundx,
-    			boundy,
+            $(target).Jcrop({
+                onChange: updatePreview,
+                onSelect: updatePreview,
+                onSelect: updateCoords,
+                aspectRatio: xsize / ysize,
+                setSelect: [ width, height, 0, 0 ],
+                trueSize: [ orig_w, orig_h ]
+            }, function(){
+                // Use the API to get the read image size
+                var bounds = this.getBounds();
+                boundx = bounds[0];
+                boundy = bounds[1];
+                // Store the API in the jcrop container for css positioning
+                jcrop_api = this;
 
-    			// Grab some preview information from the preview pane
-    			$preview = $('#preview-pane'),
-    			$pimg = $('#preview-pane .preview-container img'),
+                // Move the preview into the jcrop container for css positioning
+                $preview.appendTo(jcrop_api.ui.holder);
 
-    			xsize = $(preview_container).width(),
-    			ysize = $(preview_container).height();
-
-    		console.log('init', [xsize, ysize]);
-
-    		$(target).Jcrop({
-    			onChange: updatePreview,
-    			onSelect: updatePreview,
-    			onSelect: updateCoords,
-    			aspectRatio: xsize / ysize,
-    			setSelect: [ width, height, 0, 0 ],
-    			trueSize: [ orig_w, orig_h ]
-    		}, function(){
-    			// Use the API to get the read image size
-    			var bounds = this.getBounds();
-    			boundx = bounds[0];
-    			boundy = bounds[1];
-    			// Store the API in the jcrop container for css positioning
-    			jcrop_api = this;
-
-    			// Move the preview into the jcrop container for css positioning
-    			$preview.appendTo(jcrop_api.ui.holder);
-
-    		});
+            });
 
     		function updateCoords(c) {
     			// update global coordinates
