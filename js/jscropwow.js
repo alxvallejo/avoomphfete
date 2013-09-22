@@ -1,9 +1,9 @@
 jQuery(document).ready(function($){
     //console.log('here');
-	img = $('.oomph-edit-image');
+	var img = $('.oomph-edit-image');
 	var imgContainer = $(img).parent();
     var $image_link = imgContainer.find('.oomph-edit-image-link');
-    image_container = $(img).closest('.oomph-edit-image-container');
+    var image_container = $(img).closest('.oomph-edit-image-container');
 
     // TB Window sizes
     var tb_width = $(window).width() * 0.9;
@@ -15,6 +15,15 @@ jQuery(document).ready(function($){
         var H = $(window).height();
     });*/
 
+    // Declare window and content objects for passing between animate methods
+    var windowdims = {
+
+    }
+
+    var tbdims = {
+        padding : 10
+    }
+
     var thumbnail_width = image_container.width(); // Used to compare with document width and compare with preview thumbnail
 
     var target_filename;
@@ -22,8 +31,8 @@ jQuery(document).ready(function($){
     var width;
     var height;
 
-	width = imgContainer.length > 0 ? imgContainer.width() : 0;
-	height = imgContainer.length > 0 ? imgContainer.height() : 0;
+	var width = imgContainer.length > 0 ? imgContainer.width() : 0;
+	var height = imgContainer.length > 0 ? imgContainer.height() : 0;
 	var aspect_ratio = width / height;
 
 	articleId = $(img).closest('article').attr('id').match(/[\d]+$/);
@@ -34,8 +43,7 @@ jQuery(document).ready(function($){
 
 	save_button = $('#save_img');
 
-    $image_link.on('click', function(){
-        
+    $image_link.on('click', tbdims, function(event){ 
 
         thisImg = $(this).closest('.oomph-edit-image-container').find('img');
         articleId = $(this).closest('article').attr('id').match(/[\d]+$/);
@@ -77,54 +85,62 @@ jQuery(document).ready(function($){
 
             $(tb_content).html( parse['output_buffer'] );
 
+            var leftcol = $('#TB_ajaxContent #leftcol');
+                    var rightcol = $('#TB_ajaxContent #rightcol');
+                    var jcrop_target = $('#TB_ajaxContent #jcrop_target');
+                    var preview_container = $('#preview-pane .preview-container');
+                    var preview_pane = $('#preview-pane'); // parent div for preview container
+
             $(tb_window).animate({
                 marginLeft: 0 - (tb_width + 50) / 2,
                 marginTop: 0 - (tb_height + 30) / 2,
                 height: tb_height + 30,
                 width: tb_width + 30
             }, 400, function() {
-                console.log( 'ANIMATE OFFSET ' + $(this).offset().left );
-            });
+                var offset_left = $(this).offset().left;
+                var tbdims = event.data;
+                tbdims.w = $(document).width() - (offset_left * 2);
 
-            $('#TB_ajaxContent').animate({
-                height: tb_height,
-                width: tb_width
-            }, {
-                duration: 400
+                //console.log( 'ANIMATE OFFSET ' + $(this).offset().left );
+
+                $('#TB_ajaxContent').animate({
+                    height: tb_height,
+                    width: tb_width
+                }, 400, function() {
+                    $(this).width(tbdims.w - tbdims.padding);
+
+
+
+                    // Regroup dimensions ******************
+
+                    // 
+                    var tb_window_height = $(tb_window).height();
+                    var tb_window_width = $(tb_window).width();
+
+                    var tb_window_offset = $('#TB_window').offset();
+                    //var tb_window_right = 
+                    var rightcol_offset = $(rightcol).offset();
+                    //console.log('OFFSET' + rightcol_offset);
+                    var preview_space = $(tb_content).width() - ( rightcol_offset.left + $(rightcol).width() );
+                    console.log('$(tb_content).width()  ' + $(tb_content).width());
+                    console.log('tb_window_offset.left  ' + tb_window_offset.left);
+                    console.log('rightcol_offset.left  ' + rightcol_offset.left);
+                    console.log('rightcol_offset.left + $(rightcol).width().left  ' + rightcol_offset.left + $(rightcol).width());
+
+                    if( ((preview_space - thumbnail_width) - thumbnail_width) > 20 ) { // Choose proper right margin for preview window
+                        console.log('yesss');
+                        $(preview_pane).css({'top':0,'left':'20px'});
+                    } else {
+                        console.log('OK THEN ' + (preview_space - thumbnail_width) - thumbnail_width);
+                    }
+
+                    console.log(preview_space);
+                });
             });
 
     		$('.loading').hide();
     		
-    		var leftcol = $('#TB_ajaxContent #leftcol');
-            var rightcol = $('#TB_ajaxContent #rightcol');
-    		var jcrop_target = $('#TB_ajaxContent #jcrop_target');
-    		var preview_container = $('#preview-pane .preview-container');
-            var preview_pane = $('#preview-pane'); // parent div for preview container
-
-            // Regroup dimensions ******************
-
-            // 
-            var tb_window_height = $(tb_window).height();
-            var tb_window_width = $(tb_window).width();
-
-            var tb_window_offset = $('#TB_window').offset();
-            //var tb_window_right = 
-            var rightcol_offset = $(rightcol).offset();
-            //console.log('OFFSET' + rightcol_offset);
-            var preview_space = $(tb_content).width() - ( rightcol_offset.left + $(rightcol).width() );
-            console.log('$(tb_content).width()  ' + $(tb_content).width());
-            console.log('tb_window_offset.left  ' + tb_window_offset.left);
-            console.log('rightcol_offset.left  ' + rightcol_offset.left);
-            console.log('rightcol_offset.left + $(rightcol).width().left  ' + rightcol_offset.left + $(rightcol).width());
-
-            if( ((preview_space - thumbnail_width) - thumbnail_width) > 20 ) { // Choose proper right margin for preview window
-                console.log('yesss');
-                $(preview_pane).css({'top':0,'left':'20px'});
-            } else {
-                console.log('OK THEN ' + (preview_space - thumbnail_width) - thumbnail_width);
-            }
-
-    		console.log(preview_space);
+    		
     		
             
     		//original_thumb_url =
