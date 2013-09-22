@@ -28,8 +28,6 @@ jQuery(document).ready(function($){
 
     var target_filename;
     var orig_img_url;
-    var width;
-    var height;
 
 	var width = imgContainer.length > 0 ? imgContainer.width() : 0;
 	var height = imgContainer.length > 0 ? imgContainer.height() : 0;
@@ -44,7 +42,7 @@ jQuery(document).ready(function($){
 	save_button = $('#save_img');
 
     $image_link.on('click', tbdims, function(event){ 
-
+        jQuery('#TB_ajaxWindowTitle').html('Thumbnail Cropper');
         thisImg = $(this).closest('.oomph-edit-image-container').find('img');
         articleId = $(this).closest('article').attr('id').match(/[\d]+$/);
         console.log('image link clicked');
@@ -86,14 +84,16 @@ jQuery(document).ready(function($){
             $(tb_content).html( parse['output_buffer'] );
 
             var leftcol = $('#TB_ajaxContent #leftcol');
-                    var rightcol = $('#TB_ajaxContent #rightcol');
-                    var jcrop_target = $('#TB_ajaxContent #jcrop_target');
-                    var preview_container = $('#preview-pane .preview-container');
-                    var preview_pane = $('#preview-pane'); // parent div for preview container
+            var rightcol = $('#TB_ajaxContent #rightcol');
+            var jcrop_holder = $('#TB_ajaxContent #jcrop-holder');
+            var jcrop_target = $('#TB_ajaxContent #jcrop_target');
+            var preview_container = $('#preview-pane .preview-container');
+            var preview_pane = $('#preview-pane'); // parent div for preview container
 
             $(tb_window).animate({
                 marginLeft: 0 - (tb_width + 50) / 2,
-                marginTop: 0 - (tb_height + 30) / 2,
+                //marginTop: 0 - (tb_height + 30) / 2,
+                marginTop: '-144.35px',
                 height: tb_height + 30,
                 width: tb_width + 30
             }, 400, function() {
@@ -108,11 +108,16 @@ jQuery(document).ready(function($){
                     width: tb_width
                 }, 400, function() {
                     $(this).width(tbdims.w - tbdims.padding);
-
-
-
                     // Regroup dimensions ******************
+                    var leftcol_plus_preview_pane = $(leftcol).width() + $(preview_pane).width();
+                    var preview_pane_left_position = $(leftcol).offset().left + $(jcrop_holder).width() + 10;
+                    console.log('leftcol_plus_preview_pane ' + leftcol_plus_preview_pane);
+                    console.log('preview_pane_left_position ' + preview_pane_left_position);
 
+                    $(preview_pane).css({'top':'inherit','left':preview_pane_left_position});
+                    debugger;
+                    //debugger;
+                    //if( (  ) )
                     // 
                     var tb_window_height = $(tb_window).height();
                     var tb_window_width = $(tb_window).width();

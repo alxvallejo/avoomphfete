@@ -156,7 +156,6 @@ class Oomph_Front_End_Thumbnail_Editor {
 		ob_start(); // Return the output buffer in the first ajax response
 		?>
 		<div id="jscropwow_tb">
-			<h2>Edit Thumbnail Image Crop</h2>
 			<div class='loading'>
 				<img src="<?php echo includes_url( 'images/wpspin-2x.gif' ); ?>" />
 			</div>
