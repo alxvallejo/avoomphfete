@@ -166,6 +166,7 @@ class Oomph_Front_End_Thumbnail_Editor {
 				<div id="rightcol">
 					<h5>Preview Thumbnail</h5>
 					Dimensions: <div class="dims"></div>
+					leftcol: <div class="leftcol"></div>
 
 					<!-- This is the form that our event handler fills -->
 			        <button id="save_img">Save Thumbnail</button>	

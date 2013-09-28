@@ -37,12 +37,9 @@ jQuery(document).ready(function($){
 
 	$(img).after('<div class="response"></div>');
 
-	sourceUrl = $(img).attr('src');
-
-	save_button = $('#save_img');
+	var sourceUrl = $(img).attr('src');
 
     $image_link.on('click', tbdims, function(event){ 
-        jQuery('#TB_ajaxWindowTitle').html('Thumbnail Cropper');
         thisImg = $(this).closest('.oomph-edit-image-container').find('img');
         articleId = $(this).closest('article').attr('id').match(/[\d]+$/);
         console.log('image link clicked');
@@ -61,7 +58,7 @@ jQuery(document).ready(function($){
     		data: first_phase,
     		datatype: "json"
     	}).done(function(response){
-
+            $('#TB_title').text('Front End Thumbnail Editor');
             var parse = jQuery.parseJSON(response);
             // Parse response request and assign variables
             var fimg = parse['thumbnail'];
@@ -92,8 +89,8 @@ jQuery(document).ready(function($){
 
             $(tb_window).animate({
                 marginLeft: 0 - (tb_width + 50) / 2,
-                //marginTop: 0 - (tb_height + 30) / 2,
-                marginTop: '-144.35px',
+                marginTop: 0 - (tb_height - 30) / 2,
+                //marginTop: '-144.35px',
                 height: tb_height + 30,
                 width: tb_width + 30
             }, 400, function() {
@@ -114,40 +111,16 @@ jQuery(document).ready(function($){
                     console.log('leftcol_plus_preview_pane ' + leftcol_plus_preview_pane);
                     console.log('preview_pane_left_position ' + preview_pane_left_position);
 
-                    $(preview_pane).css({'top':'inherit','left':preview_pane_left_position});
-                    debugger;
-                    //debugger;
-                    //if( (  ) )
-                    // 
-                    var tb_window_height = $(tb_window).height();
-                    var tb_window_width = $(tb_window).width();
-
-                    var tb_window_offset = $('#TB_window').offset();
-                    //var tb_window_right = 
-                    var rightcol_offset = $(rightcol).offset();
-                    //console.log('OFFSET' + rightcol_offset);
-                    var preview_space = $(tb_content).width() - ( rightcol_offset.left + $(rightcol).width() );
-                    console.log('$(tb_content).width()  ' + $(tb_content).width());
-                    console.log('tb_window_offset.left  ' + tb_window_offset.left);
-                    console.log('rightcol_offset.left  ' + rightcol_offset.left);
-                    console.log('rightcol_offset.left + $(rightcol).width().left  ' + rightcol_offset.left + $(rightcol).width());
-
-                    if( ((preview_space - thumbnail_width) - thumbnail_width) > 20 ) { // Choose proper right margin for preview window
-                        console.log('yesss');
-                        $(preview_pane).css({'top':0,'left':'20px'});
+                    if( $(tb_content).width() > leftcol_plus_preview_pane ) {
+                        $(preview_pane).css({'top':'inherit','left':preview_pane_left_position});
                     } else {
-                        console.log('OK THEN ' + (preview_space - thumbnail_width) - thumbnail_width);
+                        var preview_pane_top_position = 53 + $(jcrop_holder).height();
+                        $(preview_pane).css({'top':preview_pane_top_position});
                     }
-
-                    console.log(preview_space);
                 });
             });
 
-    		$('.loading').hide();
-    		
-    		
-    		
-            
+    		$('.loading').hide();    
     		//original_thumb_url =
             $(jcrop_target).empty();
             $(preview_container).empty();
@@ -225,82 +198,83 @@ jQuery(document).ready(function($){
 						marginTop: '-' + Math.round(ry * c.y) + 'px'
 					});
 				}
+                var leftcol = $('#leftcol');
+                $('.leftcol').html($(leftcol).width() + ' x ' + $(leftcol).height() );
 			};
+
+            $('#save_img').on('click', function(){
+                console.log('save to path ' + target_filename);
+                    $('#TB_window').fadeOut( function(){
+                        $('#TB_window').remove();
+                    });
+                    $('#TB_overlay').fadeOut(function(){
+                        $('#TB_overlay').remove();
+                    });
+
+                save_phase = {
+                    action: 'jscropwow_save_img',
+                    nonce: 'jscropwow_vars.nonce',
+                    articleId: articleId,
+                    sourceUrl: full_src,
+                    thumbnail_id: thumbnail_id,
+                    image_title: thumbnail_post_title,
+                    target_filename: target_filename,
+                    orig_img_url: orig_img_url,
+                    x: x,
+                    y: y,
+                    w: w,
+                    h: h,
+                    width: width,
+                    height: height
+                }
+                //console.log(save_phase);
+                $.ajax({
+                    type: "GET",
+                    url: jscropwow_vars.ajaxurl,
+                    data: save_phase,
+                    datatype: "json"
+                }).done(function(response){
+                    var parse = jQuery.parseJSON(response);
+                    newImgUrl = parse['new_img_url'];
+                    $(thisImg).attr('src',newImgUrl);
+                });
+
+                // Use wp core function to save
+                /*
+                No luck saving here. Saves malformed attachment
+                */
+               /* var historyArray = [{"c": {"x":x,"y":y,"w":w,"h":h}}];
+                var history = JSON.stringify(historyArray);
+                core_save_phase = {
+                    action: 'image-editor',
+                    _ajax_nonce: nonce,
+                    postid: thumbnail_id,
+                    articleId: articleId,
+                    history: history,
+                    target: 'all',
+                    context: 'edit-attachment',
+                    do: 'save'                  
+                }
+                console.log(core_save_phase);
+                $.ajax({
+                    type: "POST",
+                    url: jscropwow_vars.ajaxurl,
+                    data: core_save_phase,
+                    datatype: "json"
+                }).done(function(response){
+                    event.preventDefault();
+                    $('#TB_window').fadeOut();
+                    $('#TB_overlay').fadeOut();
+
+                    var parse = jQuery.parseJSON(response);
+                    //console.log(response);
+                    newImgUrl = parse['new_img_url'];
+                    $(img).attr('src',newImgUrl);
+                });*/
+                return false;
+            });
 		});
     });
 
-	$(save_button).on('click', function(){
-        console.log('save to path ' + target_filename);
-		    $('#TB_window').fadeOut( function(){
-                $('#TB_window').remove();
-            });
-	    	$('#TB_overlay').fadeOut(function(){
-                $('#TB_overlay').remove();
-            });
-
-		save_phase = {
-    		action: 'jscropwow_save_img',
-    		nonce: 'jscropwow_vars.nonce',
-    		articleId: articleId,
-    		sourceUrl: full_src,
-    		thumbnail_id: thumbnail_id,
-    		image_title: thumbnail_post_title,
-            target_filename: target_filename,
-            orig_img_url: orig_img_url,
-    		x: x,
-    		y: y,
-    		w: w,
-    		h: h,
-    		width: width,
-    		height: height
-    	}
-    	//console.log(save_phase);
-    	$.ajax({
-    		type: "GET",
-    		url: jscropwow_vars.ajaxurl,
-    		data: save_phase,
-    		datatype: "json"
-    	}).done(function(response){
-	    	var parse = jQuery.parseJSON(response);
-	    	newImgUrl = parse['new_img_url'];
-	    	$(thisImg).attr('src',newImgUrl);
-    	});
-
-        // Use wp core function to save
-        /*
-        No luck saving here. Saves malformed attachment
-        */
-       /* var historyArray = [{"c": {"x":x,"y":y,"w":w,"h":h}}];
-        var history = JSON.stringify(historyArray);
-        core_save_phase = {
-            action: 'image-editor',
-            _ajax_nonce: nonce,
-            postid: thumbnail_id,
-            articleId: articleId,
-            history: history,
-            target: 'all',
-            context: 'edit-attachment',
-            do: 'save'                  
-        }
-        console.log(core_save_phase);
-        $.ajax({
-            type: "POST",
-            url: jscropwow_vars.ajaxurl,
-            data: core_save_phase,
-            datatype: "json"
-        }).done(function(response){
-            event.preventDefault();
-            $('#TB_window').fadeOut();
-            $('#TB_overlay').fadeOut();
-
-            var parse = jQuery.parseJSON(response);
-            //console.log(response);
-            newImgUrl = parse['new_img_url'];
-            $(img).attr('src',newImgUrl);
-        });*/
-
-
-
-        return false;
-	});
+	
 });
