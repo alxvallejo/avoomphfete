@@ -86,10 +86,10 @@ jQuery(document).ready(function($){
             var jcrop_target = $('#TB_ajaxContent #jcrop_target');
             var preview_container = $('#preview-pane .preview-container');
             var preview_pane = $('#preview-pane'); // parent div for preview container
-
+console.log('TB TOP ' + $(tb_window).position().top);
             $(tb_window).animate({
                 marginLeft: 0 - (tb_width + 50) / 2,
-                marginTop: 0 - (tb_height - 30) / 2,
+                //marginTop: -50,
                 //marginTop: '-144.35px',
                 height: tb_height + 30,
                 width: tb_width + 30

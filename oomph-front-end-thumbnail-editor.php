@@ -109,7 +109,7 @@ class Oomph_Front_End_Thumbnail_Editor {
 		$intermediate_size = image_get_intermediate_size( $post_thumbnail_id, array( $_GET['width'], $_GET['height'] ));
 		oomph_error_log( 'post_thumbnail_id', $post_thumbnail_id );
 		oomph_error_log( 'dims', array( $_GET['width'], $_GET['height'] ) );
-
+ 
 		$full_size = image_get_intermediate_size( $post_id, 'full' );
 
 		/* Compare filename against original to prevent overwriting the original */
@@ -117,7 +117,7 @@ class Oomph_Front_End_Thumbnail_Editor {
 			oomph_error_log( '$intermediate_size', $intermediate_size );
 			$target_filename = 'original';
 		} else {
-			// Pass along the path
+			// Pass along the path of the intermediate size to be overwritten
 			$target_filename = $intermediate_size['file'];
 		}
 		
