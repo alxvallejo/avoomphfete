@@ -61,8 +61,10 @@ class Oomph_Front_End_Thumbnail_Editor {
 
 		wp_enqueue_style( 'oomph-front-end-thumbnail-editor' );
 		wp_enqueue_script( 'oomph-front-end-thumbnail-editor', plugins_url( 'js/oomph-front-end-thumbnail-editor.js', __FILE__ ), array( 'jquery' ), 1.0 );
-		wp_enqueue_script( 'thickbox' );
-		wp_enqueue_style( 'thickbox' );
+		wp_register_script( 'colorbox', plugins_url( 'inc/colobox/jquery.colorbox.js' ), array( 'jquery' ) );
+		wp_register_style( 'colorbox', plugins_url( 'inc/colorbox/example1/colorbox.css' ) );
+		wp_enqueue_script( 'colorbox' );
+		wp_enqueue_style( 'colorbox' );
 		wp_enqueue_script( 'jcrop' );
 		wp_enqueue_style( 'jcrop' );
 		
@@ -259,7 +261,6 @@ class Oomph_Front_End_Thumbnail_Editor {
 	    	'new_img_url' => $dst_url
 	    );
 	    echo json_encode($response);
-
 
 
 	    // Save new thumbnail to this post
