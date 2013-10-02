@@ -50,30 +50,33 @@ class Oomph_Front_End_Thumbnail_Editor {
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'action_wp_enqueue_scripts' ) );
 		add_filter( 'post_thumbnail_html', array( $this, 'filter_post_thumbnail_html' ), 10, 5 );
+		//add_filter( 'wp_get_attachment_image_attributes', array( $this, 'alter_post_thumbnail_attributes' ) );
 		//add_filter( 'home_template', array( $this, 'jscropwow_tb' ), 10, 2 );
 		add_action( 'wp_ajax_jscropwow_save_img', array( $this, 'jscropwow_save_img' ) );
 		add_action( 'wp_ajax_jscropwow_find_img', array( $this, 'jscropwow_find_img' ) );
 	}
 
 	function action_wp_enqueue_scripts() {
-		wp_register_style( 'oomph-front-end-thumbnail-editor', plugins_url( 'css/oomph-front-end-thumbnail-editor.css', __FILE__ ), array(), 1.0 );
-		wp_register_script( 'jscropwow', plugins_url( 'js/jscropwow.js', __FILE__ ), array( 'jquery', 'thickbox' ), 1.0 );
-
-		wp_enqueue_style( 'oomph-front-end-thumbnail-editor' );
-		wp_enqueue_script( 'oomph-front-end-thumbnail-editor', plugins_url( 'js/oomph-front-end-thumbnail-editor.js', __FILE__ ), array( 'jquery' ), 1.0 );
-		wp_register_script( 'colorbox', plugins_url( 'inc/colobox/jquery.colorbox.js' ), array( 'jquery' ) );
-		wp_register_style( 'colorbox', plugins_url( 'inc/colorbox/example1/colorbox.css' ) );
-		wp_enqueue_script( 'colorbox' );
-		wp_enqueue_style( 'colorbox' );
+		wp_enqueue_script( 'colorbox', plugins_url( 'inc/colorbox/jquery.colorbox.js', __FILE__ ), array( 'jquery' ) );
+		wp_enqueue_script( 'oomph-crop-logic', plugins_url( 'js/oomph-crop-logic.js' , __FILE__ ), array( 'jquery', 'colorbox' ) );
 		wp_enqueue_script( 'jcrop' );
+
+		wp_enqueue_style( 'colorbox', plugins_url( 'inc/colorbox/example1/colorbox.css', __FILE__ ) );
 		wp_enqueue_style( 'jcrop' );
 		
-		wp_enqueue_script( 'jscropwow' );
-		wp_localize_script( 'jscropwow', 'jscropwow_vars', array( 'ajaxurl' => home_url( 'wp-admin/admin-ajax.php' ), 'nonce' => wp_create_nonce( 'jscropwow_nonce' ) ) );
+		wp_localize_script( 'oomph-crop-logic', 'jscropwow_vars', array( 'ajaxurl' => home_url( 'wp-admin/admin-ajax.php' ), 'nonce' => wp_create_nonce( 'jscropwow_nonce' ) ) );
+	}
+
+	function alter_post_thumbnail_attributes( $attr ) {
+
+		remove_filter( 'wp_get_attachment_image_attributes', 'alter_post_thumbnail_attributes' );
+		$attr['class'] .= ' oomph-crop-thumbnail';
+		return $attr;
 	}
 
 	function filter_post_thumbnail_html( $html, $post_id, $post_thumbnail_id, $size, $attr ) {
-		return preg_replace( '/class="(.*?)"/i', 'id="' . $post_thumbnail_id . '"class="$1 oomph-edit-image"', $html );
+		oomph_error_log( 'post thumnail id', $post_thumbnail_id );
+		return preg_replace( '/class="(.*?)"/i', 'data-post_id=' . $post_id . ' data-thumb_id="' . $post_thumbnail_id . '"class="$1 oomph-crop-thumbnail"', $html );
 	}
 
 	function jscropwow_find_img() {

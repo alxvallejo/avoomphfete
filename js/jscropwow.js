@@ -33,7 +33,8 @@ jQuery(document).ready(function($){
 	var height = imgContainer.length > 0 ? imgContainer.height() : 0;
 	var aspect_ratio = width / height;
 
-	articleId = $(img).closest('article').attr('id').match(/[\d]+$/);
+	//articleId = $(img).closest('article').attr('id').match(/[\d]+$/);
+    articleId = 79;
 
 	$(img).after('<div class="response"></div>');
 
