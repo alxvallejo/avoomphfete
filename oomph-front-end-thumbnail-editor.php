@@ -75,27 +75,24 @@ class Oomph_Front_End_Thumbnail_Editor {
 	}
 
 	function filter_post_thumbnail_html( $html, $post_id, $post_thumbnail_id, $size, $attr ) {
-		oomph_error_log( 'post thumnail id', $post_thumbnail_id );
 		return preg_replace( '/class="(.*?)"/i', 'data-post_id=' . $post_id . ' data-thumb_id="' . $post_thumbnail_id . '"class="$1 oomph-crop-thumbnail"', $html );
 	}
 
 	function jscropwow_find_img() {
 
-		if( ! $post_id = intval( $_GET['articleId'][0] ) )
+		if( ! $post_id = intval( $_GET['post_id'] ) ) {
+			oomph_error_log( 'no post id' );
 			return false;
+		}
 
 		if( ! $post = get_post( $post_id ) )
 			return false;
 
 		/* Check for thumbnail ID */
-		if( !empty( $_GET['thumbId'] ) && is_int( $_GET['thumbId'] ) )
-			$post_thumbnail_id = $_GET['thumbId'];
-		else
-			$post_thumbnail_id = get_post_thumbnail_id( $post_id );
-
-		/* Check for post thumbnail */
-		if( has_post_thumbnail( $post_id ) == false ) {
-			oomph_error_log( 'This post has no thumbnail' );
+		if( !empty( $_GET['thumb_id'] ) && is_int( $_GET['thumb_id'] ) ) {
+			$post_thumbnail_id = $_GET['thumb_id'];
+		} elseif( !$post_thumbnail_id = get_post_thumbnail_id( $post_id ) ) {
+			oomph_error_log('no thumbnail id found');
 			return false;
 		}
 
@@ -103,17 +100,21 @@ class Oomph_Front_End_Thumbnail_Editor {
 		$large_post_thumbnail = get_the_post_thumbnail( $post_id, 'full' );
 
 		/* Get thumbnail src */
-		$src = $_GET['src'];
+		// May not need this since we're interpretting the intermediate size
+		//$src = $_GET['thumb_src'];
 
 		/* If width and height img parameters are passed, get the intermediate size for this post and pass along the path and dimensions */
-		if( !isset( $_GET['width'] ) || !isset( $_GET['height'] ) ) {
+		if( !isset( $_GET['thumb_width'] ) || !isset( $_GET['thumb_height'] ) ) {
 			oomph_error_log( 'width or height is not set' );
 			return false;
+		} else {
+			$thumb_width = $_GET['thumb_width'];
+			$thumb_height = $_GET['thumb_height'];
 		}
 
-		$intermediate_size = image_get_intermediate_size( $post_thumbnail_id, array( $_GET['width'], $_GET['height'] ));
+		$intermediate_size = image_get_intermediate_size( $post_thumbnail_id, array( (int)$thumb_width, (int)$thumb_height ));
 		oomph_error_log( 'post_thumbnail_id', $post_thumbnail_id );
-		oomph_error_log( 'dims', array( $_GET['width'], $_GET['height'] ) );
+		oomph_error_log( 'dims', array( $thumb_width, $thumb_height ) );
  
 		$full_size = image_get_intermediate_size( $post_id, 'full' );
 
