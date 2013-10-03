@@ -120,6 +120,7 @@ class Oomph_Front_End_Thumbnail_Editor {
 
 		/* Compare filename against original to prevent overwriting the original */
 		if( $full_size['file'] == $intermediate_size['file'] ) {
+			// We may not need this if we can checking $is_original below
 			oomph_error_log( '$intermediate_size', $intermediate_size );
 			$target_filename = 'original';
 		} else {
@@ -132,26 +133,30 @@ class Oomph_Front_End_Thumbnail_Editor {
 		$thumb_obj = get_post( $post_thumbnail_id );
 
 		// Check if this post thumbnail is a new crop and grab the original img src
-		if( $original_src = get_post_meta( $post_thumbnail_id, 'original-thumbnail', true ) ) {
-			$src = $original_src;
+		/*if( $original_src = get_post_meta( $post_thumbnail_id, 'original-thumbnail', true ) ) {
+			$full_src = 'original';
 		} else {
-			$src = $full_size[0];
-		}
+			$full_src = $full_size[0];
+		}*/
+
+		$is_original = get_post_meta( $post_thumbnail_id, 'original-thumbnail', true ) ? true : false;
+
 		$thumb_title = $thumb_obj->post_title;
 		$nonce = wp_create_nonce("image_editor-" . $post_thumbnail_id);
-		$output_buffer = $this->jscropwow_tb();
+		$cbox_html = $this->jscropwow_tb();
 
 		$response = array(
-			'thumbnail' => $large_post_thumbnail,
-			'thumbnail_id' => $post_thumbnail_id,
-			'src' => $src,
-			'name' => $thumb_title,
-			'full_src' => $full_post_thumbnail_src[0],
-			'orig_w' => $full_post_thumbnail_src[1],
-			'orig_h' => $full_post_thumbnail_src[2],
+			'large_thumb_html' => $large_post_thumbnail,
+			//'thumbnail_id' => $post_thumbnail_id, // we're getting this on page load
+			//'full_src' => $full_src,
+			'is_original' => $is_original,
+			//'name' => $thumb_title,
+			//'full_src' => $full_post_thumbnail_src[0], // probably don't need this since we can get the attr from the html
+			//'orig_w' => $full_post_thumbnail_src[1], // We probably don't need the original dims because they will be output by get_the_post_thumbnail
+			//'orig_h' => $full_post_thumbnail_src[2],
 			'target_filename' => $target_filename,
 			'nonce' => $nonce,
-			'output_buffer' => $output_buffer
+			'cbox_html' => $cbox_html
 		);
 		echo json_encode($response);
 		die();

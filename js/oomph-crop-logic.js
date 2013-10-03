@@ -35,9 +35,13 @@ jQuery(document).ready(function($){
 		}).done(function(response){
 			var parse = $.parseJSON(response);
 
-			var fimg = parse['thumbnail'];
-			console.log(fimg);
-			
+			var large_thumb_html = parse['large_thumb_html'];
+			var is_original = parse['is_original'];
+			var target_filename = parse['target_filename'];
+			var nonce = parse['nonce'];
+			var cbox_html = parse['cbox_html'];
+			console.log(large_thumb_html);
+			$('#cboxLoadedContent').html(cbox_html);
 		})
 
 		/* cbox destination, id="cboxLoadedContent" */
