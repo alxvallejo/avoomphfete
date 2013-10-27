@@ -86,7 +86,7 @@ jQuery(document).ready(function($){
             var jcrop_target = $('#TB_ajaxContent #jcrop_target');
             var preview_container = $('#preview-pane .preview-container');
             var preview_pane = $('#preview-pane'); // parent div for preview container
-console.log('TB TOP ' + $(tb_window).position().top);
+            console.log('TB TOP ' + $(tb_window).position().top);
             $(tb_window).animate({
                 marginLeft: 0 - (tb_width + 50) / 2,
                 //marginTop: -50,
@@ -161,7 +161,8 @@ console.log('TB TOP ' + $(tb_window).position().top);
     			onSelect: updatePreview,
     			onSelect: updateCoords,
     			aspectRatio: xsize / ysize,
-    			setSelect: [ width, height, 0, 0 ],
+    			//setSelect: [ width, height, 0, 0 ],
+                setSelect: [ 0, 0, width, height ],
     			trueSize: [ orig_w, orig_h ]
     		}, function(){
     			// Use the API to get the read image size
