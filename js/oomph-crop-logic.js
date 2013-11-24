@@ -13,8 +13,8 @@ jQuery(document).ready(function($){
 		data.width = $(this).width();
 		data.height = $(this).height();
 
-		$(this).colorbox({onComplete:init(data)});
-	})
+		$(this).colorbox({onLoad:init(data)});
+	});
 
 	function init(data) {
 		console.log(data);

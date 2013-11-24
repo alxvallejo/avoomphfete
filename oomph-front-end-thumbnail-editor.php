@@ -68,7 +68,6 @@ class Oomph_Front_End_Thumbnail_Editor {
 	}
 
 	function alter_post_thumbnail_attributes( $attr ) {
-
 		remove_filter( 'wp_get_attachment_image_attributes', 'alter_post_thumbnail_attributes' );
 		$attr['class'] .= ' oomph-crop-thumbnail';
 		return $attr;
