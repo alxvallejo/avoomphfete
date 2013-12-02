@@ -45,8 +45,6 @@ class Oomph_Front_End_Thumbnail_Editor {
 		if( !is_user_logged_in() || !current_user_can( 'manage_options' ) )
 			return;
 
-		//require( __DIR__ . '/inc/jscropwow.php' );
-
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'action_wp_enqueue_scripts' ) );
 		add_filter( 'post_thumbnail_html', array( $this, 'filter_post_thumbnail_html' ), 10, 5 );
@@ -70,47 +68,40 @@ class Oomph_Front_End_Thumbnail_Editor {
 		wp_localize_script( 'jscropwow', 'jscropwow_vars', array( 'ajaxurl' => home_url( 'wp-admin/admin-ajax.php' ), 'nonce' => wp_create_nonce( 'jscropwow_nonce' ) ) );
 	}
 
-	function filter_post_thumbnail_html( $html, $post_id, $post_thumbnail_id, $size, $attr ) {
-		return preg_replace( '/class="(.*?)"/i', 'id="' . $post_thumbnail_id . '"class="$1 oomph-edit-image"', $html );
+	function filter_post_thumbnail_html( $html, $post_id, $thumb_id, $size, $attr ) {
+		return preg_replace( '/class="(.*?)"/i', 'id="' . $thumb_id . '"class="$1 oomph-edit-image"', $html );
 	}
 
 	function jscropwow_find_img() {
 
-		if( ! $post_id = intval( $_GET['articleId'][0] ) )
-			return false;
+		oomph_error_log('arrival', $_GET);
 
-		if( ! $post = get_post( $post_id ) )
-			return false;
-
-		/* Check for thumbnail ID */
-		if( !empty( $_GET['thumbId'] ) && is_int( $_GET['thumbId'] ) )
-			$post_thumbnail_id = $_GET['thumbId'];
-		else
-			$post_thumbnail_id = get_post_thumbnail_id( $post_id );
-
-		/* Check for post thumbnail */
-		if( has_post_thumbnail( $post_id ) == false ) {
-			oomph_error_log( 'This post has no thumbnail' );
-			return false;
+		if( !$_GET['thumb_id'] || 0 == (int)$_GET['thumb_id'] ) {
+			oomph_error_log( 'no thumb_id! or equal to 0!', $_GET['thumb_id'] );
+			return;
 		}
 
+		$thumb_id = (int)$_GET['thumb_id'];
+
 		/* Get full size image element */
-		$large_post_thumbnail = get_the_post_thumbnail( $post_id, 'full' );
+		if( ! $large_post_thumbnail = wp_get_attachment_image( $thumb_id, 'full' ) ) {
+			oomph_error_log( 'could not find full image!' );
+		}
 
 		/* Get thumbnail src */
 		$src = $_GET['src'];
 
-		/* If width and height img parameters are passed, get the intermediate size for this post and pass along the path and dimensions */
-		if( !isset( $_GET['width'] ) || !isset( $_GET['height'] ) ) {
-			oomph_error_log( 'width or height is not set' );
-			return false;
+		$height = $_GET['container_height'];
+		$width = $_GET['container_width'];
+
+		if( !$height || !$width ) {
+			oomph_error_log( 'Container width or height is not set' );
+			return;
 		}
 
-		$intermediate_size = image_get_intermediate_size( $post_thumbnail_id, array( $_GET['width'], $_GET['height'] ));
-		oomph_error_log( 'post_thumbnail_id', $post_thumbnail_id );
-		oomph_error_log( 'dims', array( $_GET['width'], $_GET['height'] ) );
+		$intermediate_size = image_get_intermediate_size( $thumb_id, array( $width, $height ));
  
-		$full_size = image_get_intermediate_size( $post_id, 'full' );
+		$full_size = image_get_intermediate_size( $thumb_id, 'full' );
 
 		/* Compare filename against original to prevent overwriting the original */
 		if( $full_size['file'] == $intermediate_size['file'] ) {
@@ -121,23 +112,23 @@ class Oomph_Front_End_Thumbnail_Editor {
 			$target_filename = $intermediate_size['file'];
 		}
 		
-		$full_post_thumbnail_src = wp_get_attachment_image_src( $post_thumbnail_id, 'full' );
+		$full_post_thumbnail_src = wp_get_attachment_image_src( $thumb_id, 'full' );
 		//oomph_error_log( '$full_post_thumbnail_src', $full_post_thumbnail_src );
-		$thumb_obj = get_post( $post_thumbnail_id );
+		$thumb_obj = get_post( $thumb_id );
 
 		// Check if this post thumbnail is a new crop and grab the original img src
-		if( $original_src = get_post_meta( $post_thumbnail_id, 'original-thumbnail', true ) ) {
+		if( $original_src = get_post_meta( $thumb_id, 'original-thumbnail', true ) ) {
 			$src = $original_src;
 		} else {
 			$src = $full_size[0];
 		}
 		$thumb_title = $thumb_obj->post_title;
-		$nonce = wp_create_nonce("image_editor-" . $post_thumbnail_id);
+		$nonce = wp_create_nonce("image_editor-" . $thumb_id);
 		$output_buffer = $this->jscropwow_tb();
 
 		$response = array(
 			'thumbnail' => $large_post_thumbnail,
-			'thumbnail_id' => $post_thumbnail_id,
+			'thumbnail_id' => $thumb_id,
 			'src' => $src,
 			'name' => $thumb_title,
 			'full_src' => $full_post_thumbnail_src[0],

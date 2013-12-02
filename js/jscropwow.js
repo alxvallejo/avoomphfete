@@ -33,7 +33,7 @@ jQuery(document).ready(function($){
 	var height = imgContainer.length > 0 ? imgContainer.height() : 0;
 	var aspect_ratio = width / height;
 
-	articleId = $(img).closest('article').attr('id').match(/[\d]+$/);
+	//articleId = $(img).closest('article').attr('id').match(/[\d]+$/);
 
 	$(img).after('<div class="response"></div>');
 
@@ -41,16 +41,14 @@ jQuery(document).ready(function($){
 
     $image_link.on('click', tbdims, function(event){ 
         thisImg = $(this).closest('.oomph-edit-image-container').find('img');
-        articleId = $(this).closest('article').attr('id').match(/[\d]+$/);
-        console.log('image link clicked');
+        //articleId = $(this).closest('article').attr('id').match(/[\d]+$/);
     	first_phase = {
     		action: 'jscropwow_find_img',
     		nonce: 'jscropwow_vars.nonce',
-    		articleId: articleId,
             src: thisImg.attr('src'),
-            thumbId: thisImg.attr('id'),
-            width: thisImg.attr('width'),
-            height: thisImg.attr('height')
+            thumb_id: thisImg.attr('id'),
+            container_width: thisImg.attr('width'),
+            container_height: thisImg.attr('height')
     	}
     	$.ajax({
     		type: "GET",
@@ -77,7 +75,6 @@ jQuery(document).ready(function($){
             var tb_window = $('#TB_window');
             var tb_content = $('#TB_ajaxContent');
 
-
             $(tb_content).html( parse['output_buffer'] );
 
             var leftcol = $('#TB_ajaxContent #leftcol');
@@ -86,7 +83,7 @@ jQuery(document).ready(function($){
             var jcrop_target = $('#TB_ajaxContent #jcrop_target');
             var preview_container = $('#preview-pane .preview-container');
             var preview_pane = $('#preview-pane'); // parent div for preview container
-console.log('TB TOP ' + $(tb_window).position().top);
+            console.log('TB TOP ' + $(tb_window).position().top);
             $(tb_window).animate({
                 marginLeft: 0 - (tb_width + 50) / 2,
                 //marginTop: -50,
@@ -154,7 +151,9 @@ console.log('TB TOP ' + $(tb_window).position().top);
     			xsize = $(preview_container).width(),
     			ysize = $(preview_container).height();
 
+
     		console.log('init', [xsize, ysize]);
+            debugger;
 
     		$(target).Jcrop({
     			onChange: updatePreview,
@@ -214,7 +213,7 @@ console.log('TB TOP ' + $(tb_window).position().top);
                 save_phase = {
                     action: 'jscropwow_save_img',
                     nonce: 'jscropwow_vars.nonce',
-                    articleId: articleId,
+                    //articleId: articleId,
                     sourceUrl: full_src,
                     thumbnail_id: thumbnail_id,
                     image_title: thumbnail_post_title,
