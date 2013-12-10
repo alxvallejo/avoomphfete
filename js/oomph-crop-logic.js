@@ -72,7 +72,10 @@ jQuery(document).ready(function($){
 		$('.loading').hide();
 
 		$(jcrop_target).html(data.large_thumb_html);
-		$('img', jcrop_target).attr('id', 'target');
+
+		// Left col target
+		var target = $('img', jcrop_target);
+		$(target).attr('id', 'target');
 		$(preview_container).html(data.large_thumb_html);
 
 		var preview_img = $('img', preview_container);
